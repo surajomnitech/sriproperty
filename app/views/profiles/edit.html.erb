@@ -1,0 +1,92 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow">
+        <div class="card-header">
+          <h4 class="mb-0">Edit Profile</h4>
+        </div>
+        <div class="card-body">
+          <%= form_with(model: @user, url: profile_path, method: :patch) do |f| %>
+            <% if @user.errors.any? %>
+              <div class="alert alert-danger">
+                <h5><%= pluralize(@user.errors.count, "error") %> prohibited this profile from being saved:</h5>
+                <ul>
+                  <% @user.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <%= f.label :first_name, class: 'form-label' %>
+              <%= f.text_field :first_name, class: 'form-control' %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :last_name, class: 'form-label' %>
+              <%= f.text_field :last_name, class: 'form-control' %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :email, class: 'form-label' %>
+              <%= f.email_field :email, class: 'form-control' %>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Phone Numbers</label>
+              <%= f.fields_for :phone_numbers do |phone_form| %>
+                <div class="input-group mb-2">
+                  <%= phone_form.text_field :number, class: 'form-control' %>
+                  <% if phone_form.object.persisted? %>
+                    <%= phone_form.check_box :_destroy, class: 'd-none' %>
+                    <button type="button" class="btn btn-outline-danger remove-phone">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  <% end %>
+                </div>
+              <% end %>
+              <button type="button" class="btn btn-outline-primary btn-sm add-phone">
+                <i class="fas fa-plus me-1"></i> Add Phone Number
+              </button>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <%= link_to 'Cancel', profile_path, class: 'btn btn-light' %>
+              <%= f.submit 'Update Profile', class: 'btn btn-primary' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= javascript_tag do %>
+  document.addEventListener('turbo:load', function() {
+    // Add phone number field
+    document.querySelector('.add-phone')?.addEventListener('click', function() {
+      const template = document.querySelector('.phone-template')?.innerHTML;
+      if (template) {
+        const timestamp = new Date().getTime();
+        const newField = template.replace(/NEW_RECORD/g, timestamp);
+        const phoneFields = document.querySelector('.phone-fields');
+        if (phoneFields) {
+          phoneFields.insertAdjacentHTML('beforeend', newField);
+        }
+      }
+    });
+
+    // Remove phone number field
+    document.querySelectorAll('.remove-phone')?.forEach(button => {
+      button.addEventListener('click', function() {
+        const fieldSet = this.closest('.input-group');
+        const destroyField = fieldSet.querySelector('input[type=checkbox]');
+        if (destroyField) {
+          destroyField.checked = true;
+          fieldSet.style.display = 'none';
+        }
+      });
+    });
+  });
+<% end %>

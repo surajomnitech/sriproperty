@@ -7,15 +7,18 @@ gem "rails", "~> 7.1.5", ">= 7.1.5.1"
 gem "sprockets-rails"
 gem "pg", "~> 1.1"
 gem "puma", ">= 5.0"
-gem "jsbundling-rails"
 gem "turbo-rails"
 gem "stimulus-rails"
 gem "cssbundling-rails"
 gem "jbuilder"
+gem "importmap-rails"
 
 # Authentication & Authorization
-gem "devise", "~> 4.9"
+gem "devise", "~> 4.9.3"
 gem "pundit", "~> 2.3"
+gem "omniauth", "~> 2.1"
+gem "omniauth-google-oauth2"
+gem "omniauth-rails_csrf_protection"
 
 # Background Processing & Caching
 gem "redis", ">= 4.0.1"
@@ -32,6 +35,10 @@ gem "elasticsearch-model", "~> 7.2"
 # Phone Number Handling
 gem "phonelib", "~> 0.8"
 
+# Pagination
+gem "pagy", "~> 6.2"
+gem 'kaminari', '~> 1.2.2'
+
 # Utilities
 gem "bootsnap", require: false
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -43,10 +50,14 @@ group :development, :test do
   gem "faker"
 end
 
+gem 'dotenv-rails', groups: [:development, :test]
+
 group :development do
   gem "web-console"
   # Uncomment if needed for performance profiling
   # gem "rack-mini-profiler"
+  # Preview email in the browser instead of sending it
+  gem "letter_opener"
 end
 
 group :test do
