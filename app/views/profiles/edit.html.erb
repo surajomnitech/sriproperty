@@ -33,20 +33,26 @@
               <%= f.email_field :email, class: 'form-control' %>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3" data-controller="phone-number">
               <label class="form-label">Phone Numbers</label>
-              <%= f.fields_for :phone_numbers do |phone_form| %>
-                <div class="input-group mb-2">
-                  <%= phone_form.text_field :number, class: 'form-control' %>
-                  <% if phone_form.object.persisted? %>
-                    <%= phone_form.check_box :_destroy, class: 'd-none' %>
-                    <button type="button" class="btn btn-outline-danger remove-phone">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  <% end %>
-                </div>
-              <% end %>
-              <button type="button" class="btn btn-outline-primary btn-sm add-phone">
+              <div class="phone-numbers-container">
+                <%= f.fields_for :phone_numbers do |phone_form| %>
+                  <div class="input-group mb-2">
+                    <%= phone_form.text_field :number, class: 'form-control' %>
+                    <% if phone_form.object.persisted? %>
+                      <%= phone_form.check_box :_destroy, class: 'd-none destroy-flag' %>
+                      <button type="button" class="btn btn-outline-danger" data-action="phone-number#remove">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    <% else %>
+                      <button type="button" class="btn btn-outline-danger" data-action="phone-number#removeNew">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+              <button type="button" class="btn btn-outline-primary btn-sm" data-action="phone-number#add">
                 <i class="fas fa-plus me-1"></i> Add Phone Number
               </button>
             </div>
@@ -62,31 +68,11 @@
   </div>
 </div>
 
-<%= javascript_tag do %>
-  document.addEventListener('turbo:load', function() {
-    // Add phone number field
-    document.querySelector('.add-phone')?.addEventListener('click', function() {
-      const template = document.querySelector('.phone-template')?.innerHTML;
-      if (template) {
-        const timestamp = new Date().getTime();
-        const newField = template.replace(/NEW_RECORD/g, timestamp);
-        const phoneFields = document.querySelector('.phone-fields');
-        if (phoneFields) {
-          phoneFields.insertAdjacentHTML('beforeend', newField);
-        }
-      }
-    });
-
-    // Remove phone number field
-    document.querySelectorAll('.remove-phone')?.forEach(button => {
-      button.addEventListener('click', function() {
-        const fieldSet = this.closest('.input-group');
-        const destroyField = fieldSet.querySelector('input[type=checkbox]');
-        if (destroyField) {
-          destroyField.checked = true;
-          fieldSet.style.display = 'none';
-        }
-      });
-    });
-  });
-<% end %>
+<template id="phone-number-template">
+  <div class="input-group mb-2">
+    <input class="form-control" type="text" name="user[phone_numbers_attributes][NEW_RECORD][number]" id="user_phone_numbers_attributes_NEW_RECORD_number">
+    <button type="button" class="btn btn-outline-danger" data-action="phone-number#removeNew">
+      <i class="fas fa-trash"></i>
+    </button>
+  </div>
+</template>
