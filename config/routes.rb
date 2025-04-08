@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     resources :users
     resources :properties
     resources :phone_numbers
+    resources :packages
   end
 
   resource :profile, only: [:show, :edit, :update]

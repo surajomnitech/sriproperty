@@ -13,6 +13,11 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :phone_numbers, allow_destroy: true
   accepts_nested_attributes_for :corporate_profile, allow_destroy: true
 
+  # Package relationships
+  has_many :user_packages
+  has_many :packages, through: :user_packages
+  has_one :active_package, -> { where(status: :active) }, class_name: 'UserPackage'
+
   # Validations
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -24,6 +29,7 @@ class User < ApplicationRecord
 
   # Callbacks
   after_initialize :set_default_role, if: :new_record?
+  after_create :assign_default_package
 
   def full_name
     "#{first_name} #{last_name}"
@@ -31,6 +37,14 @@ class User < ApplicationRecord
 
   def admin?
     role == 'admin' || admin == true
+  end
+
+  def can_post_listing?
+    active_package&.can_post_listing?
+  end
+
+  def available_listings
+    active_package&.available_listings || 0
   end
 
   def self.from_omniauth(auth)
@@ -60,5 +74,16 @@ class User < ApplicationRecord
   def set_default_role
     self.role ||= 'individual'
     self.status ||= 'pending'
+  end
+
+  def assign_default_package
+    default_package = Package.default
+    return unless default_package
+
+    user_packages.create!(
+      package: default_package,
+      listings_consumed: 0,
+      status: :active
+    )
   end
 end

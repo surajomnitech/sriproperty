@@ -1,0 +1,46 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Packages</h2>
+    <%= link_to 'New Package', new_admin_package_path, class: 'btn btn-primary' %>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Free Listings</th>
+              <th>Max Photos</th>
+              <th>Default</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @packages.each do |package| %>
+              <tr>
+                <td><%= package.name %></td>
+                <td><%= package.free_listings_count %></td>
+                <td><%= package.max_photos_per_listing %></td>
+                <td><%= package.is_default? ? 'Yes' : 'No' %></td>
+                <td><span class="badge <%= package.active? ? 'bg-success' : 'bg-danger' %>">
+                  <%= package.status %>
+                </span></td>
+                <td>
+                  <%= link_to 'Edit', edit_admin_package_path(package), class: 'btn btn-sm btn-primary me-2' %>
+                  <%= button_to 'Delete', admin_package_path(package), 
+                      method: :delete, 
+                      class: 'btn btn-sm btn-danger',
+                      form: { style: 'display: inline-block' },
+                      data: { confirm: 'Are you sure?' } %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_04_112903) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_08_161224) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -27,6 +27,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_04_112903) do
     t.index ["user_id"], name: "index_corporate_profiles_on_user_id"
   end
 
+  create_table "packages", force: :cascade do |t|
+    t.string "name"
+    t.integer "free_listings_count"
+    t.integer "max_photos_per_listing"
+    t.boolean "is_default"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "phone_numbers", force: :cascade do |t|
     t.string "number"
     t.boolean "verified", default: false
@@ -38,6 +48,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_04_112903) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_phone_numbers_on_user_id"
+  end
+
+  create_table "user_packages", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "package_id", null: false
+    t.integer "listings_consumed"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["package_id"], name: "index_user_packages_on_package_id"
+    t.index ["user_id"], name: "index_user_packages_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -66,4 +87,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_04_112903) do
 
   add_foreign_key "corporate_profiles", "users"
   add_foreign_key "phone_numbers", "users"
+  add_foreign_key "user_packages", "packages"
+  add_foreign_key "user_packages", "users"
 end
