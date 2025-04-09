@@ -1,0 +1,33 @@
+<div id="document-list" class="list-group">
+  <% if purchase.payment_documents.attached? %>
+    <% purchase.payment_documents.each do |document| %>
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <i class="fas <%= document.content_type.include?('pdf') ? 'fa-file-pdf' : 'fa-file-image' %> me-2"></i>
+          <%= document.filename %>
+          <small class="text-muted ms-2">
+            (<%= number_to_human_size(document.byte_size) %>)
+          </small>
+        </div>
+        <div>
+          <%= link_to rails_blob_path(document, disposition: "attachment"), 
+              class: "btn btn-info btn-sm",
+              title: "Download" do %>
+            <i class="fas fa-download"></i>
+          <% end %>
+
+          <%= link_to remove_document_admin_user_package_purchase_path(purchase, document_id: document.signed_id),
+              class: "btn btn-danger btn-sm ms-1",
+              data: { 
+                turbo_method: :delete,
+                turbo_confirm: "Are you sure?"
+              } do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="text-muted">No documents attached</p>
+  <% end %>
+</div>

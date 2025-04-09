@@ -1,44 +1,89 @@
-<%= form_with(model: [:admin, package], local: true) do |f| %>
-  <% if package.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(package.errors.count, "error") %> prohibited this package from being saved:</h4>
-      <ul>
-        <% package.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
+<%= form_with(model: [:admin, package], class: "needs-validation", local: true) do |f| %>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :name, class: "form-label" %>
+      <%= f.text_field :name, class: "form-control", required: true %>
     </div>
-  <% end %>
 
-  <div class="mb-3">
-    <%= f.label :name, class: 'form-label' %>
-    <%= f.text_field :name, class: 'form-control' %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :free_listings_count, 'Number of Free Listings', class: 'form-label' %>
-    <%= f.number_field :free_listings_count, class: 'form-control' %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :max_photos_per_listing, 'Maximum Photos per Listing', class: 'form-label' %>
-    <%= f.number_field :max_photos_per_listing, class: 'form-control' %>
-  </div>
-
-  <div class="mb-3">
-    <div class="form-check">
-      <%= f.check_box :is_default, class: 'form-check-input' %>
-      <%= f.label :is_default, 'Set as Default Package', class: 'form-check-label' %>
+    <div class="col-md-6 mb-3">
+      <%= f.label :status, class: "form-label" %>
+      <%= f.select :status, Package.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-select" %>
     </div>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :status, class: 'form-label' %>
-    <%= f.select :status, Package.statuses.keys, {}, class: 'form-select' %>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :free_listings_per_cycle, "Free Listings Per Cycle", class: "form-label" %>
+      <%= f.number_field :free_listings_per_cycle, class: "form-control", min: 0, required: true %>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <%= f.label :max_paid_listings, "Maximum Paid Listings", class: "form-label" %>
+      <%= f.number_field :max_paid_listings, class: "form-control", min: 0, required: true %>
+    </div>
   </div>
 
-  <div class="mb-3">
-    <%= f.submit class: 'btn btn-primary' %>
-    <%= link_to 'Back', admin_packages_path, class: 'btn btn-secondary' %>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :duration_days, "Package Duration (Days)", class: "form-label" %>
+      <%= f.number_field :duration_days, class: "form-control", min: 1, required: true %>
+      <div class="form-text">How long the package subscription lasts</div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <%= f.label :listing_duration_days, "Listing Duration (Days)", class: "form-label" %>
+      <%= f.number_field :listing_duration_days, class: "form-control", min: 1, required: true %>
+      <div class="form-text">How long each listing remains active</div>
+    </div>
   </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :price, class: "form-label" %>
+      <div class="input-group">
+        <span class="input-group-text">$</span>
+        <%= f.number_field :price, class: "form-control", min: 0, step: "0.01", required: true %>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <div class="form-check mt-4">
+        <%= f.check_box :invoice_required, class: "form-check-input" %>
+        <%= f.label :invoice_required, "Invoice Required", class: "form-check-label" %>
+        <div class="form-text">Check if payment requires an invoice</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 mb-3">
+      <div class="form-check">
+        <%= f.check_box :is_default, class: "form-check-input" %>
+        <%= f.label :is_default, "Make this the default package", class: "form-check-label" %>
+        <div class="form-text">Only one package can be default. New users will be assigned this package.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <%= f.submit class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_packages_path, class: "btn btn-light" %>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :page_scripts do %>
+  <script>
+    $(document).ready(function() {
+      // Enable Bootstrap form validation
+      $('.needs-validation').on('submit', function(event) {
+        if (!this.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        $(this).addClass('was-validated');
+      });
+    });
+  </script>
 <% end %>

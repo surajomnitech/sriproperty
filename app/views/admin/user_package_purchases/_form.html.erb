@@ -1,0 +1,98 @@
+<%= form_for [:admin, purchase], html: { class: "needs-validation", data: { turbo: true, turbo_reset_target: "#file-upload-reset" } } do |f| %>
+  <% if purchase.errors.any? %>
+    <div class="alert alert-danger">
+      <h5><%= pluralize(purchase.errors.count, "error") %> prevented this purchase from being saved:</h5>
+      <ul>
+        <% purchase.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :user_id, "User", class: "form-label" %>
+      <%= f.collection_select :user_id, @users, :id, :email, {}, class: "form-select" %>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <%= f.label :package_id, "Package", class: "form-label" %>
+      <%= f.collection_select :package_id, @packages, :id, :name, {}, class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :start_date, "Cycle Start Date", class: "form-label" %>
+      <%= f.date_field :start_date, class: "form-control" %>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <%= f.label :payment_status, class: "form-label" %>
+      <%= f.select :payment_status, UserPackagePurchase.payment_statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :invoice_number, class: "form-label" %>
+      <%= f.text_field :invoice_number, class: "form-control" %>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <%= f.label :payment_reference, class: "form-label" %>
+      <%= f.text_field :payment_reference, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-12">
+      <label class="form-label">Payment Documents</label>
+      <div data-controller="file-upload">
+        <div class="mb-2">
+          <%= f.file_field :payment_documents, multiple: true, 
+              class: "form-control",
+              accept: "image/png,image/jpeg,application/pdf",
+              data: {
+                file_upload_target: "input",
+                action: "change->file-upload#handleFiles"
+              } %>
+        </div>
+
+        <div class="alert alert-danger mt-2 d-none" data-file-upload-target="error">
+        </div>
+
+        <div class="form-text mb-2">Upload up to 5 files (PNG, JPG, or PDF, max 10MB each)</div>
+        
+        <% if purchase.errors[:payment_documents].any? %>
+          <div class="invalid-feedback d-block mb-2">
+            <%= purchase.errors[:payment_documents].join(", ") %>
+          </div>
+        <% end %>
+
+        <div class="selected-files mb-3" data-file-upload-target="fileList">
+        </div>
+
+        <div id="file-upload-reset"></div>
+
+        <%= render 'document_list', purchase: purchase %>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-12">
+      <%= f.label :admin_notes, class: "form-label" %>
+      <%= f.text_area :admin_notes, class: "form-control", rows: 3 %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <%= f.submit class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_user_package_purchases_path, class: "btn btn-link" %>
+    </div>
+  </div>
+<% end %>

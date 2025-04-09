@@ -14,9 +14,13 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :corporate_profile, allow_destroy: true
 
   # Package relationships
-  has_many :user_packages
+  has_many :user_packages, dependent: :destroy
   has_many :packages, through: :user_packages
   has_one :active_package, -> { where(status: :active) }, class_name: 'UserPackage'
+  has_many :user_package_purchases, dependent: :destroy
+  has_many :packages, through: :user_package_purchases
+  has_one :active_package_purchase, -> { active }, class_name: 'UserPackagePurchase'
+  has_one :active_package, through: :active_package_purchase, source: :package
 
   # Validations
   validates :first_name, presence: true

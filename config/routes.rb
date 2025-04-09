@@ -13,6 +13,13 @@ Rails.application.routes.draw do
     resources :properties
     resources :phone_numbers
     resources :packages
+    resources :user_package_purchases do
+      member do
+        patch :approve_payment
+        patch :cancel_purchase
+        delete 'remove_document/:document_id', action: :remove_document, as: :remove_document
+      end
+    end
   end
 
   resource :profile, only: [:show, :edit, :update]

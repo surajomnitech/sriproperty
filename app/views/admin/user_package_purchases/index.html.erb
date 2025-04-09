@@ -1,0 +1,90 @@
+<% content_for :title, "Package Purchases" %>
+
+<div class="card shadow mb-4">
+  <div class="card-header py-3 d-flex align-items-center justify-content-between">
+    <h6 class="m-0 font-weight-bold text-primary">Package Purchases</h6>
+    <%= link_to new_admin_user_package_purchase_path, class: "btn btn-primary btn-sm" do %>
+      <i class="fas fa-plus me-2"></i> New Purchase
+    <% end %>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered" id="purchasesTable">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Package</th>
+            <th>Purchase Date</th>
+            <th>Start Date</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @purchases.each do |purchase| %>
+            <tr>
+              <td><%= purchase.user.email %></td>
+              <td><%= purchase.package.name %></td>
+              <td><%= l purchase.created_at, format: :short %></td>
+              <td><%= l purchase.start_date, format: :short if purchase.start_date %></td>
+              <td>
+                <span class="badge <%= purchase.active? ? 'bg-success' : 
+                  (purchase.cancelled? ? 'bg-danger' : 
+                   (purchase.paid? ? 'bg-secondary' : 'bg-warning')) %>">
+                  <%= purchase.status.titleize %>
+                </span>
+              </td>
+              <td>
+                <span class="badge <%= purchase.paid? ? 'bg-success' : 'bg-warning' %>">
+                  <%= purchase.payment_status.titleize %>
+                </span>
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <%= link_to admin_user_package_purchase_path(purchase), class: "btn btn-info", title: "View" do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                  
+                  <% if purchase.pending? %>
+                    <%= button_to approve_payment_admin_user_package_purchase_path(purchase), 
+                        method: :patch,
+                        class: "btn btn-success",
+                        title: "Approve Payment" do %>
+                      <i class="fas fa-check"></i>
+                    <% end %>
+                  <% end %>
+
+                  <% if purchase.can_be_cancelled? %>
+                    <%= button_to cancel_purchase_admin_user_package_purchase_path(purchase),
+                        method: :patch,
+                        class: "btn btn-warning",
+                        title: "Cancel Purchase",
+                        data: { turbo_confirm: "Are you sure you want to cancel this purchase?" } do %>
+                      <i class="fas fa-ban"></i>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <div class="d-flex justify-content-center mt-4">
+        <%= paginate @purchases %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :page_scripts do %>
+  <script>
+    $(document).ready(function() {
+      $('#purchasesTable').DataTable({
+        order: [[2, 'desc']],
+        pageLength: 25
+      });
+    });
+  </script>
+<% end %>
